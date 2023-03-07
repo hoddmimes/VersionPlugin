@@ -10,13 +10,18 @@ repositories {
     mavenCentral()
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(15)
+    }
+}
 
 task renameJar( type: Copy ) {
     from ('./build/libs') {
         include 'VersionPlugin-1.0.jar'
     }
     destinationDir file('./')
-    rename 'VersionPlugin-1.0.jar', "versionplugin.jar"
+    rename 'VersionPlugin-1.0.jar', "versionplugin-1.0.jar"
     doLast {
         println('**** Renamed JAR file')
     }
@@ -24,7 +29,7 @@ task renameJar( type: Copy ) {
 
 task copyJar( type: Copy) {
     from('./') {
-        include 'versionplugin.jar'
+        include 'versionplugin-1.0.jar'
     }
     into '../TaskTest/libs'
     doLast {
@@ -54,6 +59,7 @@ gradlePlugin {
 }
 
 build.finalizedBy( renameJar )
+
 
 dependencies {
     implementation gradleApi()
