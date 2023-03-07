@@ -1,0 +1,68 @@
+plugins {
+    id 'java'
+    id 'java-gradle-plugin'
+}
+
+group 'com.hoddmimes'
+version '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+
+task renameJar( type: Copy ) {
+    from ('./build/libs') {
+        include 'VersionPlugin-1.0.jar'
+    }
+    destinationDir file('./')
+    rename 'VersionPlugin-1.0.jar', "versionplugin.jar"
+    doLast {
+        println('**** Renamed JAR file')
+    }
+}
+
+task copyJar( type: Copy) {
+    from('./') {
+        include 'versionplugin.jar'
+    }
+    into '../TaskTest/libs'
+    doLast {
+        println("***** Copy to TaskTest")
+    }
+}
+
+configurations {
+    // configuration that holds jars to include in the jar
+    extraLibs
+}
+
+jar {
+    from {
+        configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+gradlePlugin {
+    // Define the plugin
+    plugins {
+        version {
+            id = 'com.hoddmimes.versionplugin'
+            implementationClass = 'com.hoddmimes.versionplugin.VersionPlugin'
+        }
+    }
+}
+
+build.finalizedBy( renameJar )
+
+dependencies {
+    implementation gradleApi()
+    extraLibs group: 'com.google.code.gson', name: 'gson', version: '2.10.1'
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.10.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+test {
+    useJUnitPlatform()
+}
